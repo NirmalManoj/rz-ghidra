@@ -5,6 +5,7 @@
 
 #include "Decompiler.h"
 #include "R2Task.h"
+#include "../src/CodeXMLParse.h"
 
 class R2GhidraDecompiler: public Decompiler
 {

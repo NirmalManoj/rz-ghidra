@@ -16,51 +16,62 @@ R2GhidraDecompiler::R2GhidraDecompiler(QObject *parent)
 
 void R2GhidraDecompiler::decompileAt(RVA addr)
 {
-	if(task)
+	if(task){
 		return;
+	}
+	
+	//Extra
+	RAnnotatedCode *codesy = DecompileToRAnnotatedCode(Core()->core());
+	//Extra
+
 
 	AnnotatedCode code = {};
+	code.code = QString::fromUtf8(codesy->code);
+	// task = new R2Task ("pdgj @ " + QString::number(addr));
 
-	task = new R2Task ("pdgj @ " + QString::number(addr));
+	// connect(task, &R2Task::finished, this, [this]() {
+	// 	AnnotatedCode code = {};
+	// 	QString s;
 
-	connect(task, &R2Task::finished, this, [this]() {
-		AnnotatedCode code = {};
-		QString s;
+	// 	QJsonObject json = task->getResultJson().object();
+	// 	delete task;
+	// 	task = nullptr;
+	// 	//Extra
+	// 	RAnnotatedCode *codes = DecompileToRAnnotatedCode(Core()->core());
+	// 	//Extra
 
-		QJsonObject json = task->getResultJson().object();
-		delete task;
-		task = nullptr;
-		if(json.isEmpty())
-		{
-			code.code = tr("Failed to parse JSON from r2ghidra");
-			emit finished(code);
-			return;
-		}
+	// 	// if(json.isEmpty())
+	// 	// {
+	// 	// 	code.code = tr("Failed to parse JSON from r2ghidra");
+	// 	// 	emit finished(code);
+	// 	// 	return;
+	// 	// }
 
-		auto root = json;
-		code.code = root["code"].toString();
+	// 	// auto root = json;
+	// 	// code.code = root["code"].toString();
 
-		for(QJsonValueRef annotationValue : root["annotations"].toArray())
-		{
-			QJsonObject annotationObject = annotationValue.toObject();
-			CodeAnnotation annotation = {};
-			annotation.start = (size_t)annotationObject["start"].toVariant().toULongLong();
-			annotation.end = (size_t)annotationObject["end"].toVariant().toULongLong();
-			if(annotationObject["type"].toString() == "offset")
-			{
-				annotation.type = CodeAnnotation::Type::Offset;
-				annotation.offset.offset = annotationObject["offset"].toVariant().toULongLong();
-			}
-			else
-				continue;
-			code.annotations.push_back(annotation);
-		}
-
-		for(QJsonValueRef error : json["errors"].toArray())
-			code.code += "// " + error.toString() + "\n";
-
-		emit finished(code);
-	});
-	task->startTask();
-
+	// 	// for(QJsonValueRef annotationValue : root["annotations"].toArray())
+	// 	// {
+	// 	// 	QJsonObject annotationObject = annotationValue.toObject();
+	// 	// 	CodeAnnotation annotation = {};
+	// 	// 	annotation.start = (size_t)annotationObject["start"].toVariant().toULongLong();
+	// 	// 	annotation.end = (size_t)annotationObject["end"].toVariant().toULongLong();
+	// 	// 	if(annotationObject["type"].toString() == "offset")
+	// 	// 	{
+	// 	// 		annotation.type = CodeAnnotation::Type::Offset;
+	// 	// 		annotation.offset.offset = annotationObject["offset"].toVariant().toULongLong();
+	// 	// 	}
+	// 	// 	else
+	// 	// 		continue;
+	// 	// 	code.annotations.push_back(annotation);
+	// 	// }
+	// 	code.code = strdup ("Hello\n\nsdf");
+	// 	for(QJsonValueRef error : json["errors"].toArray()){
+	// 		code.code += "// " + error.toString() + "\n";
+	// 	}
+	// 	code.code = QString::fromUtf8(codes->code);
+	// 	emit finished(code);
+	// });
+	// task->startTask();
+	emit finished(code);
 }
